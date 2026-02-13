@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Portfolio Analyzer & Enhancer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        
+        .input-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .analyze-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .example-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .score-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+        }
+        
+        .profile-info {
+            text-align: left;
+            flex: 1;
+        }
+        
+        .profile-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-info p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .profile-stats span {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .score-display {
+            margin: 30px 0;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(#667eea 0%, #764ba2 var(--score), #e0e0e0 var(--score));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            width: 170px;
+            height: 170px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .score-grade {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .score-description {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .metric-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .strength-item, .red-flag-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .strength-item {
+            border-left: 4px solid #28a745;
+        }
+        
+        .red-flag-item {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+        }
+        
+        .recommendation-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation-category {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .priority-medium {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .priority-low {
+            background: #28a745;
+            color: white;
+        }
+        
+        .recommendation-issue {
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .recommendation-action {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation-impact {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .repo-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .repo-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+        
+        .repo-language {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .repo-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .repo-metrics {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .repo-metric {
+            color: #666;
+        }
+        
+        .repo-metric span {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .languages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .language-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .language-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .language-count {
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-section {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-info {
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GitHub Portfolio Analyzer</h1>
+            <p>Turn Your Repositories into Recruiter-Ready Proof</p>
+        </div>
+        
+        <div class="input-section">
+            <h2 style="margin-bottom: 20px; color: #333;">Analyze Your GitHub Profile</h2>
+            <div class="input-group">
+                <input type="text" id="githubUrl" placeholder="Enter GitHub profile URL or username" 
+                       value="">
+                <button class="analyze-btn" onclick="analyzeProfile()">Analyze Profile</button>
+            </div>
+            <p class="example-text">
+                Example: https://github.com/username or just "username"
+            </p>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="color: #666; font-size: 1.1rem;">Analyzing your GitHub profile...</p>
+            <p style="color: #999; font-size: 0.9rem; margin-top: 10px;">This may take 10-30 seconds</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="results" id="results">
+            <div class="score-card">
+                <div class="profile-header">
+                    <img src="" alt="Profile Avatar" class="profile-avatar" id="profileAvatar">
+                    <div class="profile-info">
+                        <h2 id="profileName"></h2>
+                        <p id="profileBio"></p>
+                        <div class="profile-stats">
+                            <div>📦 <span id="repoCount">0</span> Repositories</div>
+                            <div>👥 <span id="followers">0</span> Followers</div>
+                            <div>📍 <span id="location">Unknown</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="score-display">
+                    <div class="score-circle" id="scoreCircle">
+                        <div class="score-number" id="scoreNumber">0</div>
+                    </div>
+                    <div class="score-grade" id="scoreGrade">-</div>
+                    <div class="score-description" id="scoreDescription">-</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">📊 Detailed Metrics</h3>
+                <div class="metrics-grid" id="metricsGrid"></div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">💪 Your Strengths</h3>
+                <div id="strengths"></div>
+            </div>
+            
+            <div class="section" id="redFlagsSection" style="display: none;">
+                <h3 class="section-title">🚩 Red Flags for Recruiters</h3>
+                <div id="redFlags"></div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">🎯 Actionable Recommendations</h3>
+                <div id="recommendations"></div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">💻 Technology Stack</h3>
+                <div class="languages-grid" id="languages"></div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">📁 Top Analyzed Repositories</h3>
+                <div id="repositories"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function analyzeProfile() {
+            const input = document.getElementById('githubUrl').value.trim();
+            if (!input) {
+                showError('Please enter a GitHub profile URL or username');
+                return;
+            }
+            
+            // Hide previous results and errors
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('loading').classList.add('show');
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ github_url: input })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to analyze profile');
+                }
+                
+                displayResults(data);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        function displayResults(data) {
+            // Display profile info
+            document.getElementById('profileAvatar').src = data.profile.avatar_url;
+            document.getElementById('profileName').textContent = data.profile.name || data.username;
+            document.getElementById('profileBio').textContent = data.profile.bio || 'No bio available';
+            document.getElementById('repoCount').textContent = data.profile.public_repos;
+            document.getElementById('followers').textContent = data.profile.followers;
+            document.getElementById('location').textContent = data.profile.location || 'Not specified';
+            
+            // Display score
+            const score = data.overall_score;
+            document.getElementById('scoreNumber').textContent = Math.round(score);
+            document.getElementById('scoreGrade').textContent = data.grade;
+            document.getElementById('scoreDescription').textContent = data.grade_description;
+            
+            // Animate score circle
+            const scoreCircle = document.getElementById('scoreCircle');
+            scoreCircle.style.setProperty('--score', `${score}%`);
+            
+            // Display metrics
+            const metricsGrid = document.getElementById('metricsGrid');
+            metricsGrid.innerHTML = '';
+            
+            const metricLabels = {
+                'documentation_quality': 'Documentation Quality',
+                'code_structure': 'Code Structure',
+                'activity_consistency': 'Activity Consistency',
+                'repository_organization': 'Repository Organization',
+                'project_impact': 'Project Impact',
+                'technical_depth': 'Technical Depth'
+            };
+            
+            for (const [key, value] of Object.entries(data.metrics)) {
+                const metricCard = document.createElement('div');
+                metricCard.className = 'metric-card';
+                metricCard.innerHTML = `
+                    <div class="metric-header">
+                        <span class="metric-title">${metricLabels[key]}</span>
+                        <span class="metric-value">${Math.round(value)}</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill" style="width: ${value}%"></div>
+                    </div>
+                `;
+                metricsGrid.appendChild(metricCard);
+            }
+            
+            // Display strengths
+            const strengthsDiv = document.getElementById('strengths');
+            strengthsDiv.innerHTML = '';
+            data.strengths.forEach(strength => {
+                const div = document.createElement('div');
+                div.className = 'strength-item';
+                div.innerHTML = `✅ ${strength}`;
+                strengthsDiv.appendChild(div);
+            });
+            
+            // Display red flags
+            const redFlagsDiv = document.getElementById('redFlags');
+            const redFlagsSection = document.getElementById('redFlagsSection');
+            if (data.red_flags && data.red_flags.length > 0) {
+                redFlagsSection.style.display = 'block';
+                redFlagsDiv.innerHTML = '';
+                data.red_flags.forEach(flag => {
+                    const div = document.createElement('div');
+                    div.className = 'red-flag-item';
+                    div.innerHTML = flag;
+                    redFlagsDiv.appendChild(div);
+                });
+            } else {
+                redFlagsSection.style.display = 'none';
+            }
+            
+            // Display recommendations
+            const recommendationsDiv = document.getElementById('recommendations');
+            recommendationsDiv.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'recommendation-card';
+                div.innerHTML = `
+                    <div class="recommendation-header">
+                        <span class="recommendation-category">${rec.category}</span>
+                        <span class="priority-badge priority-${rec.priority.toLowerCase()}">${rec.priority} Priority</span>
+                    </div>
+                    <div class="recommendation-issue"><strong>Issue:</strong> ${rec.issue}</div>
+                    <div class="recommendation-action"><strong>Action:</strong> ${rec.action}</div>
+                    <div class="recommendation-impact">💡 Potential Impact: ${rec.impact}</div>
+                `;
+                recommendationsDiv.appendChild(div);
+            });
+            
+            // Display languages
+            const languagesDiv = document.getElementById('languages');
+            languagesDiv.innerHTML = '';
+            for (const [lang, count] of Object.entries(data.languages)) {
+                const div = document.createElement('div');
+                div.className = 'language-item';
+                div.innerHTML = `
+                    <div class="language-name">${lang}</div>
+                    <div class="language-count">${count} repo${count !== 1 ? 's' : ''}</div>
+                `;
+                languagesDiv.appendChild(div);
+            }
+            
+            // Display repositories
+            const repositoriesDiv = document.getElementById('repositories');
+            repositoriesDiv.innerHTML = '';
+            data.analyzed_repositories.forEach(repo => {
+                const div = document.createElement('div');
+                div.className = 'repo-card';
+                div.innerHTML = `
+                    <div class="repo-header">
+                        <div class="repo-name">${repo.name}</div>
+                        ${repo.language ? `<div class="repo-language">${repo.language}</div>` : ''}
+                    </div>
+                    <div class="repo-description">${repo.description}</div>
+                    <div class="repo-metrics">
+                        <div class="repo-metric">⭐ <span>${repo.stars}</span> stars</div>
+                        <div class="repo-metric">🔀 <span>${repo.forks}</span> forks</div>
+                        <div class="repo-metric">📝 README: <span>${repo.readme_score > 20 ? 'Good' : 'Missing/Poor'}</span></div>
+                    </div>
+                `;
+                repositoriesDiv.appendChild(div);
+            });
+            
+            // Show results
+            document.getElementById('results').classList.add('show');
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('githubUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeProfile();
+            }
+        });
+    </script>
+</body>
+</html>
