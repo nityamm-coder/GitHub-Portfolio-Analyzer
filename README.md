@@ -4,7 +4,7 @@ Turn your GitHub repositories into recruiter-ready proof. Get objective scores, 
 
 ## 🌐 Deployment
 Deployed on Railway platform: <br>
-## LINK: [github-portfolio-analyzer-production-22e8.up.railway.app](https://github-portfolio-analyzer-production-22e8.up.railway.app/)
+## LINK: [github-portfolio-analyzer](https://github-portfolio-analyzer-production-22e8.up.railway.app/)
 ## 📹 Demo Video
 
 [Screen Recording will be added here - showing full working functionality]
@@ -34,7 +34,7 @@ The analyzer evaluates profiles across 6 key dimensions:
 - **Backend**: Python, Flask
 - **Frontend**: HTML, CSS, JavaScript (Vanilla)
 - **API**: GitHub REST API v3
-- **Deployment Ready**: Configured for Render, Railway, Vercel, or Heroku
+- **Deployment**: Configured for Railway
 
 ## 📦 Installation
 
