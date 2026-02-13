@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 import re
 from collections import Counter
 import os
-from dotenv import load_dotenv  # Add this line
+from dotenv import load_dotenv  
 
-load_dotenv()  # Add this line
+load_dotenv() 
 
 app = Flask(__name__)
 
@@ -63,7 +63,7 @@ class GitHubAnalyzer:
                 # Check if README exists
                 score += 20
                 
-                # Estimate content length (base64 encoded, so approximate)
+                # Estimate content length
                 size = readme_data.get('size', 0)
                 if size > 1000:
                     score += 20
@@ -458,7 +458,6 @@ def analyze():
     if not username:
         return jsonify({'error': 'Invalid GitHub URL. Please provide a valid GitHub profile URL.'}), 400
     
-    # Get token from environment variable (optional)
     token = os.environ.get('GITHUB_TOKEN')
     
     analyzer = GitHubAnalyzer(username, token)
