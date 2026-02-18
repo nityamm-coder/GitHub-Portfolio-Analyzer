@@ -4,10 +4,7 @@ Turn your GitHub repositories into recruiter-ready proof. Get objective scores, 
 
 ## 🌐 Deployment
 Deployed on Railway platform: <br>
-## LINK: [github-portfolio-analyzer](https://github-portfolio-analyzer-production-22e8.up.railway.app/)
-
-## 📹 Demo Video
-Google Drive Link: https://drive.google.com/file/d/1lhBjqnOHyySu8aGTM3zlTvgaCk9JXCOt/view?usp=sharing
+## Project LINK: [github-portfolio-analyzer](https://github-portfolio-analyzer-production-22e8.up.railway.app/)
 
 ## ✨ Features
 
